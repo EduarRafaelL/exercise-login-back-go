@@ -8,6 +8,7 @@ import (
 )
 
 // InitializeDatabase abre una conexión a la base de datos y la retorna.
+// InitializeDatabase establishes a connection to the database and returns it.
 func InitializeDatabase(dbDriver, dbSource string) (*sql.DB, error) {
 	db, err := sql.Open(dbDriver, dbSource)
 	if err != nil {
@@ -15,7 +16,7 @@ func InitializeDatabase(dbDriver, dbSource string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	// Prueba la conexión con db.Ping()
+	// Tests the connection with db.Ping()
 	err = db.Ping()
 	if err != nil {
 		log.Printf("Failed to ping the database: %v", err)

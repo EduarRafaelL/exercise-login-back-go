@@ -22,13 +22,14 @@ func configureLoginRoutes(cfg *config.Config, r *mux.Router) error {
 	userRepository := repositories.NewUserRepository(database)
 
 	// userService is the service used to handle user operations.
-	userService := services.NewUserService(userRepository)
+	userService := services.NewUserService(userRepository, cfg.SecretKey)
 
 	// userHandler is the handler used to handle user requests.
 	userHandler := NewUserHandler(userService)
 
 	// Register the user registration handler.
 	r.HandleFunc("/api/users/register", userHandler.RegisterUser).Methods("POST")
+	r.HandleFunc("/api/users/login", userHandler.LoginUser).Methods("POST")
 
 	return nil
 }

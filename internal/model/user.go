@@ -1,6 +1,7 @@
 package model
 
-// User representa un usuario en el sistema.
+import "github.com/dgrijalva/jwt-go"
+
 type User struct {
 	ID       int
 	Username string
@@ -9,7 +10,11 @@ type User struct {
 	Password string
 }
 
-// UserLoginRequest estructura de los datos de registro de usuario.
+type Claims struct {
+	Username string `json:"username"`
+	jwt.StandardClaims
+}
+
 type UserRegistrationRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
@@ -17,7 +22,6 @@ type UserRegistrationRequest struct {
 	Password string `json:"password"`
 }
 
-// UserLoginRequest estructura de los datos de solicitud de login de usuario.
 type UserLoginRequest struct {
 	EmailOrUsername string `json:"emailOrUsername"`
 	Password        string `json:"password"`
