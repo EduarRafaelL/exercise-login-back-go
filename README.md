@@ -43,12 +43,13 @@ END;
 Obtiene un usuario por su correo electrónico o número de teléfono:
 
 ```sql
-CREATE PROCEDURE GetUserByEmailOrUsername
-    @EmailOrUsername VARCHAR(255)
+CREATE PROCEDURE GetUserByEmailOrPhone
+    @Email VARCHAR(255),
+    @Phone VARCHAR(10)
 AS
 BEGIN
-    SELECT * FROM Users
-    WHERE Email = @EmailOrUsername OR Username = @EmailOrUsername
+    SELECT * FROM users
+    WHERE email = @Email OR phone = @Phone
 END
 ```
 
@@ -65,7 +66,5 @@ AS
 BEGIN
     INSERT INTO users (username, email, phone, password)
     VALUES (@Username, @Email, @Phone, @Password)
-END
-
 END
 ```
