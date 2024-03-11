@@ -12,20 +12,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserService struct {
+type UserService interface {
+	RegisterUser(user model.UserRegistrationRequest) error
+	LoginUser(emailOrUsername, password string) (string, error)
+}
+
+type userServiceImpl struct {
 	repo      model.UserRepository
 	SecretKey string
 }
 
-func NewUserService(repo model.UserRepository, secretKey string) *UserService {
-	return &UserService{
+func NewUserService(repo model.UserRepository, secretKey string) *userServiceImpl {
+	return &userServiceImpl{
 		repo:      repo,
 		SecretKey: secretKey,
 	}
 }
 
 // RegisterUser creates a new user in the system.
-func (s *UserService) RegisterUser(req model.UserRegistrationRequest) error {
+func (s *userServiceImpl) RegisterUser(req model.UserRegistrationRequest) error {
 	var err error
 	// Validate the user registration request
 	if err := s.ValidateRegistration(req); err != nil {
@@ -55,7 +60,7 @@ func (s *UserService) RegisterUser(req model.UserRegistrationRequest) error {
 }
 
 // ValidateRegistration validates the user registration request.
-func (s *UserService) ValidateRegistration(req model.UserRegistrationRequest) error {
+func (s *userServiceImpl) ValidateRegistration(req model.UserRegistrationRequest) error {
 	if !isValidEmail(req.Email) {
 		return fmt.Errorf("el formato del correo electrónico no es válido")
 	}
@@ -132,7 +137,7 @@ func hashPassword(password string) (string, error) {
 
 // LoginUser authenticates a user using their email or username and password.
 // If the credentials are valid, a JSON Web Token (JWT) is generated and returned.
-func (s *UserService) LoginUser(emailOrUsername, password string) (string, error) {
+func (s *userServiceImpl) LoginUser(emailOrUsername, password string) (string, error) {
 	// Retrieve the user from the database based on the provided email or username.
 	user, err := s.repo.GetUserByEmailOrUsername(emailOrUsername)
 	if err != nil {
@@ -156,7 +161,7 @@ func (s *UserService) LoginUser(emailOrUsername, password string) (string, error
 }
 
 // Verify the provided password
-func (s *UserService) checkPassword(hashedPassword, providedPassword string) error {
+func (s *userServiceImpl) checkPassword(hashedPassword, providedPassword string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(providedPassword))
 	if err != nil {
 		return errors.New("contraseña incorrecta")
@@ -165,7 +170,7 @@ func (s *UserService) checkPassword(hashedPassword, providedPassword string) err
 }
 
 // Create a new JSON Web Token (JWT)
-func (s *UserService) createToken(username string) (string, error) {
+func (s *userServiceImpl) createToken(username string) (string, error) {
 	// Set the expiration time for the token to be 1 hour from now
 	expirationTime := time.Now().Add(1 * time.Hour)
 

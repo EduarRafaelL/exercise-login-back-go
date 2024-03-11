@@ -9,11 +9,11 @@ import (
 )
 
 type UserHandler struct {
-	userService *services.UserService
+	userService services.UserService
 }
 
 // NewUserHandler creates a new instance of UserHandler
-func NewUserHandler(userService *services.UserService) *UserHandler {
+func NewUserHandler(userService services.UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
@@ -47,25 +47,25 @@ func (uh *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	// req is the incoming request body
 	var loginReq model.UserLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&loginReq); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Error decoding request body")
+		respondWithError(w, http.StatusBadRequest, "Error al decodificar el cuerpo de la solicitud")
 		return
 	}
 
 	// validate request
 	if strings.TrimSpace(loginReq.EmailOrUsername) == "" {
-		respondWithError(w, http.StatusBadRequest, "email or username is required")
+		respondWithError(w, http.StatusBadRequest, "Falta el campo email o nombre de usuario")
 		return
 	}
 	if strings.TrimSpace(loginReq.Password) == "" {
-		respondWithError(w, http.StatusBadRequest, "password is required")
+		respondWithError(w, http.StatusBadRequest, "Falta el campo contraseña")
 		return
 	}
 
 	// attempt to login user
 	token, err := uh.userService.LoginUser(loginReq.EmailOrUsername, loginReq.Password)
 	if err != nil {
-		// handle error
-		respondWithError(w, http.StatusUnauthorized, "username or password is incorrect")
+		// Manejar error.
+		respondWithError(w, http.StatusUnauthorized, "usuario / contraseña incorrectos")
 		return
 	}
 
@@ -77,16 +77,16 @@ func (uh *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 func validateRegistrationRequest(req model.UserRegistrationRequest) []string {
 	var errs []string
 	if strings.TrimSpace(req.Username) == "" {
-		errs = append(errs, "username is required")
+		errs = append(errs, "Falta el campo nombre de usuario")
 	}
 	if strings.TrimSpace(req.Email) == "" {
-		errs = append(errs, "email is required")
+		errs = append(errs, "Falta el campo email")
 	}
 	if strings.TrimSpace(req.Phone) == "" {
-		errs = append(errs, "phone is required")
+		errs = append(errs, "Falta el campo teléfono")
 	}
 	if strings.TrimSpace(req.Password) == "" {
-		errs = append(errs, "password is required")
+		errs = append(errs, "Falta el campo contraseña")
 	}
 	return errs
 }
